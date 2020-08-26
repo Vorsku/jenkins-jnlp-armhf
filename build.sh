@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JENKINS_VERSION=4.3
+IMAGE_VERSION=0.1
 PREFIX="vorsku"
 REPO="jenkins-ssh-agent-armhf"
 
