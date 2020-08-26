@@ -21,7 +21,8 @@ ENV SSH_KEY ""
 
 RUN mkdir /var/run/sshd
 
-ADD entrypoint.sh /tmp/entrypoint.sh
-ENTRYPOINT ["/tmp/entrypoint.sh"]
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["/usr/sbin/sshd", "-D"]
