@@ -1,40 +1,25 @@
-FROM openjdk:8-jdk-alpine
+FROM ubuntu:16.04
 
-#FROM adoptopenjdk/openjdk8:jdk8u262-b10-alpine
+# Install required dependencies for jenkins slave launch
+RUN apt-get update && apt-get install -y openssh-server openjdk-8-jre-headless
 
-ARG user=jenkins
-ARG group=jenkins
-ARG uid=1000
-ARG gid=1000
-ARG JENKINS_AGENT_HOME=/home/${user}
+# Install common binaries to support some generic functionality without an docker image
+RUN apt-get update && apt-get install -y git make curl
 
-ENV JENKINS_AGENT_HOME ${JENKINS_AGENT_HOME}
+# Install docker
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates software-properties-common
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+RUN apt-get update && apt-get install -y docker-ce=18.03.1~ce-0~ubuntu
 
-RUN mkdir -p "${JENKINS_AGENT_HOME}" \
-    && addgroup -g "${gid}" "${group}" \
-# Set the home directory (h), set user and group id (u, G), set the shell, don't ask for password (D)
-    && adduser -h "${JENKINS_AGENT_HOME}" -u "${uid}" -G "${group}" -s /bin/bash -D "${user}" \
-# Unblock user
-    && passwd -u "${user}"
+RUN mkdir -p /root/.ssh
+RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+ENV SSH_PASSWORD jenkins
+ENV SSH_KEY ""
 
-# setup SSH server
-RUN apk update --no-cache \
-    && apk add --no-cache \
-        bash \
-        openssh
+RUN mkdir /var/run/sshd
 
-RUN sed -i /etc/ssh/sshd_config \
-        -e 's/#PermitRootLogin.*/PermitRootLogin no/' \
-        -e 's/#PasswordAuthentication.*/PasswordAuthentication no/' \
-        -e 's/#SyslogFacility.*/SyslogFacility AUTH/' \
-        -e 's/#LogLevel.*/LogLevel INFO/' \
-    && mkdir /var/run/sshd
+ADD entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
-VOLUME "${JENKINS_AGENT_HOME}" "/tmp" "/run" "/var/run"
-WORKDIR "${JENKINS_AGENT_HOME}"
-
-COPY setup-sshd /usr/local/bin/setup-sshd
-
-EXPOSE 22
-
-ENTRYPOINT ["setup-sshd"]
+CMD ["/usr/sbin/sshd", "-D"]
