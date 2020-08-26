@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM arm32v7/openjdk:7-jdk-alpine
 
 ARG VERSION=4.3
 ARG user=jenkins
