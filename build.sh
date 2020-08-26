@@ -2,7 +2,7 @@
 
 JENKINS_VERSION=4.3
 PREFIX="vorsku"
-REPO="jenkins-jnlp-armhf"
+REPO="jenkins-ssh-agent-armhf"
 
 docker build \
 	--rm --tag $PREFIX/$REPO:$JENKINS_VERSION \
