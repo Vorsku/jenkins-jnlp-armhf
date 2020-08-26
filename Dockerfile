@@ -1,35 +1,40 @@
-FROM arm32v7/openjdk:7-jdk-alpine
+FROM openjdk:8-jdk-alpine
 
-ARG VERSION=4.3
+#FROM adoptopenjdk/openjdk8:jdk8u262-b10-alpine
+
 ARG user=jenkins
 ARG group=jenkins
 ARG uid=1000
 ARG gid=1000
+ARG JENKINS_AGENT_HOME=/home/${user}
 
-RUN addgroup -g ${gid} ${group}
-RUN adduser -h /home/${user} -u ${uid} -G ${group} -D ${user}
-LABEL Description="This is a base image, which provides the Jenkins agent executable (slave.jar)" Vendor="Jenkins project" Version="${VERSION}"
+ENV JENKINS_AGENT_HOME ${JENKINS_AGENT_HOME}
 
-ARG AGENT_WORKDIR=/home/${user}/agent
+RUN mkdir -p "${JENKINS_AGENT_HOME}" \
+    && addgroup -g "${gid}" "${group}" \
+# Set the home directory (h), set user and group id (u, G), set the shell, don't ask for password (D)
+    && adduser -h "${JENKINS_AGENT_HOME}" -u "${uid}" -G "${group}" -s /bin/bash -D "${user}" \
+# Unblock user
+    && passwd -u "${user}"
 
-RUN apk add --update --no-cache curl bash git git-lfs openssh-client openssl procps \
-  && curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
-  && chmod 755 /usr/share/jenkins \
-  && chmod 644 /usr/share/jenkins/agent.jar \
-  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar \
-  && apk del curl
-USER ${user}
-ENV AGENT_WORKDIR=${AGENT_WORKDIR}
-RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+# setup SSH server
+RUN apk update --no-cache \
+    && apk add --no-cache \
+        bash \
+        openssh
 
-USER root
-COPY jenkins-agent /usr/local/bin/jenkins-agent
-RUN chmod +x /usr/local/bin/jenkins-agent &&\
-    ln -s /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-slave
-USER ${user}
+RUN sed -i /etc/ssh/sshd_config \
+        -e 's/#PermitRootLogin.*/PermitRootLogin no/' \
+        -e 's/#PasswordAuthentication.*/PasswordAuthentication no/' \
+        -e 's/#SyslogFacility.*/SyslogFacility AUTH/' \
+        -e 's/#LogLevel.*/LogLevel INFO/' \
+    && mkdir /var/run/sshd
 
-VOLUME /home/${user}/.jenkins
-VOLUME ${AGENT_WORKDIR}
-WORKDIR /home/${user}
+VOLUME "${JENKINS_AGENT_HOME}" "/tmp" "/run" "/var/run"
+WORKDIR "${JENKINS_AGENT_HOME}"
 
-CMD ping google.com
+COPY setup-sshd /usr/local/bin/setup-sshd
+
+EXPOSE 22
+
+ENTRYPOINT ["setup-sshd"]
