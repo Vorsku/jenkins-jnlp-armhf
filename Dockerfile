@@ -22,6 +22,6 @@ ENV SSH_KEY ""
 RUN mkdir /var/run/sshd
 
 COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+ ENTRYPOINT ["sh", "/entrypoint.sh"]
 
 CMD ["/usr/sbin/sshd", "-D"]
