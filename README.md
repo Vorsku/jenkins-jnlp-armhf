@@ -6,7 +6,13 @@ Jenkins SSH Agent built for ARM32 - also includes Docker so that it can be used 
 
 To configure this agent in Jenkins:
 - Manage Jenkins -> Manage Nodes and Clouds -> Configure Clouds -> Docker
-
+- Connect to your Docker API
+- Set up an Agent Template using the following settings:
+  - <b>Docker Image:</b> vorsku/jenkins-ssh-agent-armhf:latest
+  - <b>Connect method:</b> Connect with SSH
+  - <b>SSH key:</b> Inject SSH key
+  - <b>User:</b> root
+  - <b>Port:</b> 2222
 
 <b>CHANGELOG</b>
 - 0.2 (latest) - 27/08/2020 - Rebased to Ubuntu 18.04
