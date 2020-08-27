@@ -1,7 +1,3 @@
-
-
-<a href="https://github.com/Vorsku/jenkins-ssh-agent-armhf" target="_blank">Source</a>
-
 Jenkins SSH Agent built for ARM32 - also includes Docker so that it can be used as an agent to build Docker images in Jenkins.
 
 To configure this agent in Jenkins:
