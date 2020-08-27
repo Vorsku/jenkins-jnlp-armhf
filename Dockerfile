@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 # Install required dependencies for jenkins slave launch
 RUN apt-get update && apt-get install -y openssh-server openjdk-8-jre-headless apt-transport-https ca-certificates software-properties-common git make curl
