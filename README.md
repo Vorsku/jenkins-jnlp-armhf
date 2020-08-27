@@ -7,6 +7,7 @@ To configure this agent in Jenkins:
   - <b>Docker Image:</b> vorsku/jenkins-ssh-agent-armhf:latest
   - <b>Container settings...</b>
     - <b>Volumes:</b> /var/run/docker.sock:/var/run/docker.sock
+  - <b>Remote File System Root:</b> /home/jenkins
   - <b>Connect method:</b> Connect with SSH
   - <b>SSH key:</b> Inject SSH key
   - <b>User:</b> root
