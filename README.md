@@ -11,7 +11,7 @@ To configure this agent in Jenkins:
   - <b>Connect method:</b> Connect with SSH
   - <b>SSH key:</b> Inject SSH key
   - <b>User:</b> root
-  - <b>Port:</b> 22
+  - <b>Port:</b> 2222
 
 <b>CHANGELOG</b>
 - 0.2 (latest) - 27/08/2020 - Rebased to Ubuntu 18.04
